@@ -1,0 +1,22 @@
+{
+  "name": "ng-baidu-map",
+  "homepage": "https://github.com/Coralma/ng-baidu-map",
+  "authors": [
+    "Coral <maqujun@yahoo.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.8"
+  }
+}
