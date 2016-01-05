@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Hello, World</title>
+    <link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.css">
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5b6ea60af8dda25ddf093faebeeadeab"></script>
+    <script type="text/javascript" src="../lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="../lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../lib/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script type="text/javascript" src="../lib/lodash/lodash.min.js"></script>
+
+    <style type="text/css">
+        html {
+            height: 100%
+        }
+
+        body {
+            margin: 0px;
+            padding: 0px
+        }
+        .search-text {
+            margin: 5px;
+            width: 500px;
+
+        }
+        .page {
+            height: 600px;
+        }
+        #baiduMap {
+            height: 500px;
+        }
+        .rf-div {
+            margin: 10px;
+            padding: 30px 10px;
+            border: 2px solid #c4c4c4;
+        }
+        .rf-div:hover {
+            border: 2px solid #d24b13;
+        }
+    </style>
+
+</head>
+
+<body ng-controller="MyController">
+<div class="page">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div ng-repeat="rf in repairFactory" class="rf-div" ng-mouseover="calculateRouter(rf)" ng-mouseleave="init()">
+                    <span>{{rf.name}}</span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div id="baiduMap"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var myApp = angular.module('myApp', []);
+    myApp.controller('MyController', ['$scope','$http', function($scope, $http) {
+        $scope.repairFactory = [
+            {name: '上海师大汽车修理厂', location: '徐汇区虹漕南路157号(漕宝路)', lng: '121.419689', lat: '31.166856'},
+            {name: '上海梅陇汽车修理厂', location: '虹梅南路128号', lng: '121.420383', lat: '31.144142'},
+            {name: '上海强生集团汽车修理有限公司', location: '徐汇区龙吴路398号', lng: '121.455561', lat: '31.168401'},
+            {name: '上海振华汽车修理厂', location: '徐汇区石龙路345弄9号', lng: '121.447653', lat: '31.161047'},
+            {name: '上海延福汽车修理厂', location: '虹梅路1100号内', lng: '121.412554', lat: '31.163897'},
+        ];
+
+        $scope.calculateRouter = function(rf) {
+            map.clearOverlays();
+            var transit = new BMap.DrivingRoute(map, {renderOptions: {map: map}});
+            var startPoint = new BMap.Point(121.436372, 31.161197);
+            var endPoint = new BMap.Point(rf.lng, rf.lat);
+            transit.search(startPoint, endPoint);
+            //transit.search("徐汇区沪闵路9001号(近轨道一,三号线上海南站)", rf.location);
+        };
+
+        $scope.init = function() {
+            map.clearOverlays();
+            var mainPoint = new BMap.Point(121.436372, 31.161197);  // 创建点坐标
+            map.centerAndZoom(mainPoint, 14);
+
+            var myGeo = new BMap.Geocoder();
+            _.forEach($scope.repairFactory, function(rf) {
+                myGeo.getPoint(rf.location, function(point){
+                    if (point) {
+                        var address = new BMap.Point(point.lng, point.lat);
+                        var marker = new BMap.Marker(point);
+                        map.addOverlay(marker);
+                        //marker.setLabel(label);
+                        marker.setAnimation(BMAP_ANIMATION_BOUNCE);
+                    }
+                }, "上海市");
+            })
+        }
+
+        var map = new BMap.Map("baiduMap");          // 创建地图实例
+        map.addControl(new BMap.NavigationControl()); // 显示左上方的地图导航功能以及缩放功能
+        map.addControl(new BMap.MapTypeControl()); // 显示右上方的地图显示类型，地图，卫星，三维
+        map.addControl(new BMap.ScaleControl()); // 比例尺控件，默认位于地图左下方，显示地图的比例关系。
+        map.addControl(new BMap.OverviewMapControl()); //缩略地图控件，默认位于地图右下方，是一个可折叠的缩略地图。
+        map.enableScrollWheelZoom();   //启用滚轮放大缩小，默认禁用
+        map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+
+        var mainPoint = new BMap.Point(121.436372, 31.161197);  // 创建点坐标
+        map.centerAndZoom(mainPoint, 14);                 // 初始化地图，设置中心点坐标和地图级别
+
+       /* var myGeo = new BMap.Geocoder();
+        _.forEach($scope.repairFactory, function(rf) {
+            myGeo.getPoint(rf.location, function(point){
+                if (point) {
+                    var address = new BMap.Point(point.lng, point.lat);
+                    addMarker(address);
+                }
+            }, "上海市");
+        })
+
+        function addMarker(point, label){
+            var marker = new BMap.Marker(point);
+            map.addOverlay(marker);
+            //marker.setLabel(label);
+            marker.setAnimation(BMAP_ANIMATION_BOUNCE);
+        }*/
+        $scope.init();
+    }])
+</script>
+</body>
+</html>
